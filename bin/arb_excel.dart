@@ -3,14 +3,12 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:path/path.dart';
 
-import 'package:arb_excel/arb_excel.dart';
+import 'package:arb_excel_converter/arb_excel.dart';
 
 const _kVersion = '0.1.0';
 
 void main(List<String> args) {
   final parse = ArgParser();
-  parse.addOption('new',
-      abbr: 'n', valueHelp: 'path/to/file/name', help: 'New translation sheet');
   parse.addOption('arb',
       abbr: 'a', valueHelp: 'path to Excel file', help: 'Export Excel file to ARB');
   parse.addOption('excel',
@@ -21,13 +19,6 @@ void main(List<String> args) {
   if (args.isEmpty) {
     usage(parse);
     exit(1);
-  }
-
-  if (flags['new'] != null) {
-    final filename = flags['new'] as String;
-    stdout.writeln('Create new Excel file for translation: $filename');
-    newTemplate(filename);
-    exit(0);
   }
 
   if (flags['arb'] != null) {
@@ -48,7 +39,7 @@ void main(List<String> args) {
 }
 
 void usage(ArgParser parse) {
-  stdout.writeln('arb_sheet v$_kVersion\n');
+  stdout.writeln('arb_sheet_converter v$_kVersion\n');
   stdout.writeln('USAGE:');
   stdout.writeln(parse.usage);
 }
