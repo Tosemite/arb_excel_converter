@@ -25,11 +25,11 @@ OPTIONS
 Generates ARB files from a XLSX file.
 
 ```bash
-pub global run arb_excel -a app.xlsx
+pub global run arb_excel_converter -a app.xlsx
 ```
 
 Creates a XLSX file from ARB files.
 
 ```bash
-pub global run arb_excel -e app_en.arb
+pub global run arb_excel_converter -e app_en.arb
 ```

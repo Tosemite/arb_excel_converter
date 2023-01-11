@@ -1,5 +1,5 @@
 #
-# arb_sheet
+# arb_excel_converter
 #
 
 .DEFAULT_GOAL := run
@@ -29,13 +29,13 @@ assets:
 	@make -s fmt
 
 run: assets
-	@dart run bin/arb_excel.dart -n example/test.xlsx
-	@dart run bin/arb_excel.dart -a example/test.xlsx
+	@dart run bin/arb_excel_converter.dart -n example/test.xlsx
+	@dart run bin/arb_excel_converter.dart -a example/test.xlsx
 
 build: assets
 	@mkdir -p build
-	@dart compile exe bin/arb_excel.dart -o build/arb_excel
-	@dart compile aot-snapshot bin/arb_excel.dart -o build/arb_excel.aot
+	@dart compile exe bin/arb_excel_converter.dart -o build/arb_excel_converter
+	@dart compile aot-snapshot bin/arb_excel_converter.dart -o build/arb_excel_converter.aot
 
 active: assets
 	@dart pub global activate --source path .
