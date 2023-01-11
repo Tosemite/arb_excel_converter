@@ -17,3 +17,8 @@
 ## 0.0.4
 
 - Support `ShareString`
+
+## 0.1.0
+
+- Support for ARB to Excel Conversion
+- Minor changes in ARB file generation
