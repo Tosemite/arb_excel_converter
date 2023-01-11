@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:path/path.dart';
@@ -8,7 +9,36 @@ final _kRegArgs = RegExp(r'{(\w+)}');
 /// Parses .arb files to [Translation].
 /// The [filename] is the main language.
 Translation parseARB(String filename) {
-  throw UnimplementedError();
+  const metaSymbol = '@';
+  final bytes = File(filename).readAsBytesSync();
+  final body = Utf8Decoder().convert(bytes);
+  final jsonBody = json.decode(body) as Map<String, dynamic>;
+  final items = <ARBItem>[];
+  final textKeys =
+      jsonBody.keys.where((element) => !element.startsWith(metaSymbol));
+  final language = withoutExtension(filename).split('_').last;
+  for (final textKey in textKeys) {
+    final text = jsonBody[textKey];
+    if (text is! String) continue;
+    String? description;
+    String? category;
+    final metadata = jsonBody[metaSymbol + textKey];
+    if (metadata is Map<String, dynamic>) {
+      description = metadata['description'];
+      category = metadata['type'];
+    }
+    items.add(
+      ARBItem(
+        category: category,
+        text: textKey,
+        description: description,
+        translations: {
+          language: text,
+        },
+      ),
+    );
+  }
+  return Translation(languages: [language], items: items);
 }
 
 /// Writes [Translation] to .arb files.
@@ -69,25 +99,24 @@ class ARBItem {
     final List<String> buf = [];
 
     if (hasMetadata) {
-      buf.add('  "$text": "$value",');
+      buf.add('  "$text": "${value.replaceAll('"', '\\"')}",');
       buf.add('  "@$text": {');
-
-      if (args.isEmpty) {
-        if (description != null) {
-          buf.add('    "description": "$description"');
-        }
-      } else {
-        if (description != null) {
-          buf.add('    "description": "$description",');
-        }
-
+      if (description != null) {
+        buf.add('    "description": "$description",');
+      }
+      if (category != null) {
+        buf.add('    "type": "$category",');
+      }
+      if (args.isNotEmpty) {
         buf.add('    "placeholders": {');
         final List<String> group = [];
         for (final arg in args) {
-          group.add('      "$arg": {"type": "String"}');
+          group.add('      "$arg": {}');
         }
         buf.add(group.join(',\n'));
         buf.add('    }');
+      } else {
+        buf.add('    "placeholders": {}');
       }
 
       buf.add('  }');

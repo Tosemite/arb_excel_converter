@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:arb_excel/src/assets.dart';
 import 'package:excel/excel.dart';
+import 'package:path/path.dart';
 
 import 'arb.dart';
 
@@ -27,7 +28,7 @@ void newTemplate(String filename) {
 /// from the template.
 Translation parseExcel({
   required String filename,
-  String sheetname = 'Text',
+  String sheetname = 'Sheet1',
   int headerRow = _kRowHeader,
   int valueRow = _kRowValue,
 }) {
@@ -66,5 +67,28 @@ Translation parseExcel({
 
 /// Writes a Excel file, includes all translations.
 void writeExcel(String filename, Translation data) {
-  throw UnimplementedError();
+  final excel = Excel.createExcel();
+  //library creates one sheet by default
+  final sheetname = excel.sheets.keys.first;
+  final sheet = excel[sheetname];
+  final headerRow = ['category', 'text', 'description', ...data.languages];
+  sheet.appendRow(headerRow);
+  for (final item in data.items) {
+    final row = [
+      item.category ?? '',
+      item.text,
+      item.description ?? '',
+      ...data.languages.map((e) => item.translations[e] ?? '')
+    ];
+    sheet.appendRow(row);
+  }
+  final bytes = excel.save();
+  if (bytes == null) {
+    stdout.write('''
+        Error occurred while saving the excel file.\n
+        Do you have the necessary permissions?
+        ''');
+    return;
+  }
+  File('${withoutExtension(filename).split('_').first}.xlsx').writeAsBytesSync(bytes);
 }

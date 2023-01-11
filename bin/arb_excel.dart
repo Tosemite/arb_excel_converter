@@ -5,43 +5,44 @@ import 'package:path/path.dart';
 
 import 'package:arb_excel/arb_excel.dart';
 
-const _kVersion = '0.0.1';
+const _kVersion = '0.1.0';
 
 void main(List<String> args) {
   final parse = ArgParser();
-  parse.addFlag('new',
-      abbr: 'n', defaultsTo: false, help: 'New translation sheet');
-  parse.addFlag('arb',
-      abbr: 'a', defaultsTo: false, help: 'Export to ARB files');
-  parse.addFlag('excel',
-      abbr: 'e', defaultsTo: false, help: 'Import ARB files to sheet');
+  parse.addOption('new',
+      abbr: 'n', valueHelp: 'path/to/file/name', help: 'New translation sheet');
+  parse.addOption('arb',
+      abbr: 'a', valueHelp: 'path to Excel file', help: 'Export Excel file to ARB');
+  parse.addOption('excel',
+      abbr: 'e', valueHelp: 'path to ARB file', help: 'Import ARB file to sheet');
   final flags = parse.parse(args);
 
   // Not enough args
-  if (args.length < 2) {
+  if (args.isEmpty) {
     usage(parse);
     exit(1);
   }
 
-  final filename = flags.rest.first;
-
-  if (flags['new']) {
+  if (flags['new'] != null) {
+    final filename = flags['new'] as String;
     stdout.writeln('Create new Excel file for translation: $filename');
     newTemplate(filename);
     exit(0);
   }
 
-  if (flags['arb']) {
-    stdout.writeln('Generate ARB from: $filename');
-    final data = parseExcel(filename: filename);
-    writeARB('${withoutExtension(filename)}.arb', data);
+  if (flags['arb'] != null) {
+    final excelPath = flags['arb'] as String;
+    stdout.writeln('Generate ARB from: $excelPath');
+    final data = parseExcel(filename: excelPath);
+    writeARB('${withoutExtension(excelPath)}.arb', data);
     exit(0);
   }
 
-  if (flags['excel']) {
-    stdout.writeln('Generate Excel from: $filename');
-    final data = parseARB(filename);
-    writeExcel('${withoutExtension(filename)}.xlsx', data);
+  if (flags['excel'] != null) {
+    final arbFile = flags['excel'] as String;
+    stdout.writeln('Generate Excel from: $arbFile');
+    final data = parseARB(arbFile);
+    writeExcel('${withoutExtension(arbFile)}.xlsx', data);
     exit(0);
   }
 }
@@ -49,9 +50,5 @@ void main(List<String> args) {
 void usage(ArgParser parse) {
   stdout.writeln('arb_sheet v$_kVersion\n');
   stdout.writeln('USAGE:');
-  stdout.writeln(
-    '  arb_sheet [OPTIONS] path/to/file/name\n',
-  );
-  stdout.writeln('OPTIONS');
   stdout.writeln(parse.usage);
 }
