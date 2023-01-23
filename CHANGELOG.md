@@ -22,3 +22,7 @@
 
 - Support for ARB to Excel Conversion
 - Minor changes in ARB file generation
+
+## 0.2.0
+## [Minor breaking changes]
+- Changed generate sheet options to take ARB files from specified folder [breaking change]

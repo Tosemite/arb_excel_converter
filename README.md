@@ -14,12 +14,12 @@ pub global activate arb_excel_converter
 ```bash
 pub global run arb_excel_converter
 
-arb_excel_converter [OPTIONS] path/to/file/name
+arb_excel_converter [OPTIONS]
 
-OPTIONS
--n, --new      New translation sheet
--a, --arb      Export to ARB files
--e, --excel    Import ARB files to sheet
+OPTIONS:
+-a, --arb=<path to Excel file>    Export Excel file to ARB
+-e, --excel=<path to ARB directory>    Import ARB file to sheet
+
 ```
 
 Generates ARB files from a XLSX file.
@@ -28,8 +28,8 @@ Generates ARB files from a XLSX file.
 pub global run arb_excel_converter -a app.xlsx
 ```
 
-Creates a XLSX file from ARB files.
+Creates a XLSX file from ARB files directory.
 
 ```bash
-pub global run arb_excel_converter -e app_en.arb
+pub global run arb_excel_converter -e path/to/l10n
 ```

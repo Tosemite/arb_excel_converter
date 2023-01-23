@@ -5,14 +5,18 @@ import 'package:path/path.dart';
 
 import 'package:arb_excel_converter/arb_excel_converter.dart';
 
-const _kVersion = '0.1.0';
+const _kVersion = '0.2.0';
 
 void main(List<String> args) {
   final parse = ArgParser();
   parse.addOption('arb',
-      abbr: 'a', valueHelp: 'path to Excel file', help: 'Export Excel file to ARB');
+      abbr: 'a',
+      valueHelp: 'path to Excel file',
+      help: 'Export Excel file to ARB');
   parse.addOption('excel',
-      abbr: 'e', valueHelp: 'path to ARB file', help: 'Import ARB file to sheet');
+      abbr: 'e',
+      valueHelp: 'path to ARB directory',
+      help: 'Import ARB files to sheet');
   final flags = parse.parse(args);
 
   // Not enough args

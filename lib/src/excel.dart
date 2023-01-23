@@ -80,5 +80,7 @@ void writeExcel(String filename, Translation data) {
         ''');
     return;
   }
-  File('${withoutExtension(filename).split('_').first}.xlsx').writeAsBytesSync(bytes);
+
+  File('${withoutExtension(split(filename).last).split('_').first}.xlsx')
+      .writeAsBytesSync(bytes);
 }

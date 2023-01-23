@@ -7,38 +7,59 @@ import 'package:path/path.dart';
 final _kRegArgs = RegExp(r'{(\w+)}');
 
 /// Parses .arb files to [Translation].
-/// The [filename] is the main language.
-Translation parseARB(String filename) {
+/// The [folderPath] is folder to the arb files.
+Translation parseARB(String folderPath) {
   const metaSymbol = '@';
-  final bytes = File(filename).readAsBytesSync();
-  final body = Utf8Decoder().convert(bytes);
-  final jsonBody = json.decode(body) as Map<String, dynamic>;
+  final folder = Directory(folderPath);
+  if (!folder.existsSync())
+    throw FileSystemException('Directory $folderPath does not exists');
   final items = <ARBItem>[];
-  final textKeys =
-      jsonBody.keys.where((element) => !element.startsWith(metaSymbol));
-  final language = withoutExtension(filename).split('_').last;
-  for (final textKey in textKeys) {
-    final text = jsonBody[textKey];
-    if (text is! String) continue;
-    String? description;
-    String? category;
-    final metadata = jsonBody[metaSymbol + textKey];
-    if (metadata is Map<String, dynamic>) {
-      description = metadata['description'];
-      category = metadata['type'];
+  final languages = <String>{};
+  for (final entity in folder.listSync(followLinks: false)) {
+    if (entity is! File || !entity.path.endsWith('.arb')) continue;
+    final bytes = entity.readAsBytesSync();
+    final body = Utf8Decoder().convert(bytes);
+    final jsonBody = json.decode(body) as Map<String, dynamic>;
+    final textKeys =
+        jsonBody.keys.where((element) => !element.startsWith(metaSymbol));
+    final language = withoutExtension(entity.path).split('_').last;
+    if (!languages.contains(language)) languages.add(language);
+    for (final textKey in textKeys) {
+      final text = jsonBody[textKey];
+      if (text is! String) continue;
+      String? description;
+      String? category;
+      final metadata = jsonBody[metaSymbol + textKey];
+      if (metadata is Map<String, dynamic>) {
+        description = metadata['description'];
+        category = metadata['type'];
+      }
+      final indexExists = items.indexWhere((e) => e.text == textKey);
+      if (indexExists == -1) {
+        items.add(
+          ARBItem(
+            category: category,
+            text: textKey,
+            description: description,
+            translations: {
+              language: text,
+            },
+          ),
+        );
+      } else {
+        items[indexExists] = ARBItem(
+          category: items[indexExists].category ?? category,
+          text: textKey,
+          description: items[indexExists].description ?? description,
+          translations: {
+            language: text,
+            ...items[indexExists].translations,
+          },
+        );
+      }
     }
-    items.add(
-      ARBItem(
-        category: category,
-        text: textKey,
-        description: description,
-        translations: {
-          language: text,
-        },
-      ),
-    );
   }
-  return Translation(languages: [language], items: items);
+  return Translation(languages: languages.toList(), items: items);
 }
 
 /// Writes [Translation] to .arb files.
@@ -99,7 +120,6 @@ class ARBItem {
     final List<String> buf = [];
 
     if (hasMetadata) {
-      buf.add('  "$text": "${value.replaceAll('"', '\\"')}",');
       buf.add('  "@$text": {');
       if (description != null) {
         buf.add('    "description": "$description",');

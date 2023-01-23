@@ -1,6 +1,6 @@
 name: arb_excel_converter
 description: Generates ARB files from an Excel file and vise versa.
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/Tosemite/arb_excel_converter
 
 environment:
